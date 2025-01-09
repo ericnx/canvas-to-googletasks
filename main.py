@@ -1,6 +1,7 @@
 import requests
 import os
 from dotenv import load_dotenv
+from datetime import date
 
 load_dotenv()
 CANVAS_TOKEN = os.getenv("CANVAS_TOKEN")
@@ -31,16 +32,21 @@ while url: # O(P * C). P = # of pages, C = # of courses
 
 # gets the assignments using the course ids and names
 assignment_list = {}
-for course_id in course_list.keys():
-    url = f"{CANVAS_URL}/{course_id}/assignments"
+today = date.today()
+
+for course_id in course_list.keys(): # O(C * A). C = # of courses, A = # of assignments
+    url = f"{CANVAS_URL}/{course_id}/assignments" # creates a new url to get the course's assignments
     r = requests.get(url, headers=h, params=p)
     
     if r.status_code == 200:
         assignments = r.json()
         print(f"Assignments for course: {course_list[course_id]}")
+
         for assignment in assignments:
             if assignment.get("id") and assignment.get("name") and assignment.get("due_at"):
-                assignment_list[assignment.get("id")] = f"{assignment.get("name")} due at {assignment.get("due_at", "No due")}"
-                print(f"- {assignment_list[assignment.get("id")]}")
+                if date.fromisoformat(assignment.get("due_at")[:10]) >= today:
+                    assignment_list[assignment.get("id")] = f"{assignment.get("name")} due at {assignment.get("due_at", "No due date")}"
+                    print(f"- {assignment_list[assignment.get("id")]}")
+                    
     else:
         print(f"Failed to get the assignments for ID:{course_id} - Status:{r.status_code}")
