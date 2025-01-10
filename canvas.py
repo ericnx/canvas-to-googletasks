@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from datetime import date
 
-def main():
+def get_canvas_assignments():
     load_dotenv()
     CANVAS_TOKEN = os.getenv("CANVAS_TOKEN")
     CANVAS_URL = url = os.getenv("CANVAS_URL")
@@ -57,4 +57,4 @@ def main():
             print(f"Failed to get the assignments for ID:{course_id} - Status:{r.status_code}")
 
 if __name__ == "__main__":
-    main()
+    get_canvas_assignments()
