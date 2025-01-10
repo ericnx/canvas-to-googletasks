@@ -25,12 +25,12 @@ while url: # O(P * C). P = # of pages, C = # of courses
         for link in r.headers.get("link").split(","): # breaks into separate links
             if 'rel="next"' in link: # rel = relation, looks for the "next" page/relation
                 url = link.split(";")[0].strip("<>") # gets the clean url of the "next" page which is the first link
-
+                
         print(f"{course_list}\n")
     else:
         print(f"Failed to get the courses for URL:{url} - Status:{r.status_code}")
 
-# gets the assignments using the course ids and names
+# gets the assignments' ids, names, and due dates
 assignment_list = {}
 today = date.today()
 
@@ -42,11 +42,15 @@ for course_id in course_list.keys(): # O(C * A). C = # of courses, A = # of assi
         assignments = r.json()
         print(f"Assignments for course: {course_list[course_id]}")
 
+        latest_assignment = assignments[-1].get("due_at")
+        if latest_assignment is None or date.fromisoformat(latest_assignment[:10]) < today:
+            print("- No assignments")
+            continue
+
         for assignment in assignments:
             if assignment.get("id") and assignment.get("name") and assignment.get("due_at"):
-                if date.fromisoformat(assignment.get("due_at")[:10]) >= today:
+                if date.fromisoformat(assignment.get("due_at")[:10]) >= today: # only get today's or future assignments
                     assignment_list[assignment.get("id")] = f"{assignment.get("name")} due at {assignment.get("due_at", "No due date")}"
-                    print(f"- {assignment_list[assignment.get("id")]}")
-                    
+                    print(f"- {assignment_list[assignment.get("id")]}")   
     else:
         print(f"Failed to get the assignments for ID:{course_id} - Status:{r.status_code}")
