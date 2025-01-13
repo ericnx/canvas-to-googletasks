@@ -1,8 +1,15 @@
 import canvas
-import google
+import googletasks
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+url = os.getenv("CANVAS_URL")
 
 def main():
-    return
+    courses = canvas.get_canvas_courses(url)
+    assignments = canvas.get_canvas_assignments(courses)
+    googletasks.add_tasks(courses, assignments)
 
 if __name__ == "__main__":
     main()
