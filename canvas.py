@@ -20,47 +20,59 @@ def get_canvas_courses(url):
 
             for course in courses:
                 if course.get("id") and course.get("name"):
-                    course_list[course.get("id")] = course.get("name")
+                    # nested dict
+                    # course id: {
+                    #   course name: str
+                    #   course assignments: []
+                    # }
+                    course_list[course.get("id")] = {
+                        "course_name": course.get("name"),
+                        "assignments": [],
+                    }
 
             url = None
             for link in r.headers.get("link").split(","): # breaks into separate links
                 if 'rel="next"' in link: # rel = relation, looks for the "next" page/relation
                     url = link.split(";")[0].strip("<>") # gets the clean url of the "next" page which is the first link
-
-            print(f"{course_list}\n")
         else:
             print(f"Failed to get the courses for URL:{url} - Status:{r.status_code}")
 
     return course_list
 
 def get_canvas_assignments(course_list):
-    # gets the assignments' ids, names, and due dates
-    assignment_list = {}
+    # gets the assignments' ids, names, and due dates and adds it along with the course's id and name
     today = date.today()
 
-    for course_id in course_list.keys(): # O(C * A). C = # of courses, A = # of assignments
+    for course_id in course_list: # O(C * A). C = # of courses, A = # of assignments
         url = f"{CANVAS_URL}/{course_id}/assignments" # creates a new url to get the course's assignments
         r = requests.get(url, headers=h, params=p)
         
         if r.status_code == 200:
             assignments = r.json()
-            print(f"Assignments for course: {course_list[course_id]}")
+            print(f"Assignments for course: {course_list[course_id]["course_name"]}")
 
             latest_assignment = assignments[-1].get("due_at")
+            # ignores old assignments
             if latest_assignment is None or date.fromisoformat(latest_assignment[:10]) < today:
-                print("- No assignments")
+                course_list[course_id]["assignments"] = None
+                print(f"- {course_list[course_id]["assignments"]}")
                 continue
 
             for assignment in assignments:
                 if assignment.get("id") and assignment.get("name") and assignment.get("due_at"):
                     if date.fromisoformat(assignment.get("due_at")[:10]) >= today: # only get today's or future assignments
-                        assignment_list[assignment.get("id")] = f"{assignment.get("name")} due at {assignment.get("due_at", "No due date")}"
-                        print(f"- {assignment_list[assignment.get("id")]}")   
+                        # course id: {
+                        #   course name: str
+                        #   course assignments: [
+                        #       [assignment id, assignment name, assignment due date]
+                        #   ]
+                        # }
+                        course_list[course_id]["assignments"].append([assignment.get("id"), assignment.get("name"), assignment.get("due_at", "No due date")])
+                        print(f"- {assignment.get("name")} due at {assignment.get("due_at", "No due date")}") 
         else:
             print(f"Failed to get the assignments for ID:{course_id} - Status:{r.status_code}")
     
-    print()
-    return assignment_list
+    return course_list
 
 if __name__ == "__main__":
     get_canvas_assignments(get_canvas_courses(url))
