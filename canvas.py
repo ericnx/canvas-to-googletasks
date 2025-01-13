@@ -3,14 +3,14 @@ import os
 from dotenv import load_dotenv
 from datetime import date
 
-def get_canvas_assignments():
-    load_dotenv()
-    CANVAS_TOKEN = os.getenv("CANVAS_TOKEN")
-    CANVAS_URL = url = os.getenv("CANVAS_URL")
+load_dotenv()
+CANVAS_TOKEN = os.getenv("CANVAS_TOKEN")
+CANVAS_URL = url = os.getenv("CANVAS_URL")
 
-    h = {"Authorization": f"Bearer {CANVAS_TOKEN}"}
-    p = {"per_page": 1000}
+h = {"Authorization": f"Bearer {CANVAS_TOKEN}"}
+p = {"per_page": 1000}
 
+def get_canvas_courses(url):
     # gets the courses using the student's Canvas token
     course_list = {}
     while url: # O(P * C). P = # of pages, C = # of courses
@@ -31,6 +31,9 @@ def get_canvas_assignments():
         else:
             print(f"Failed to get the courses for URL:{url} - Status:{r.status_code}")
 
+    return course_list
+
+def get_canvas_assignments(course_list):
     # gets the assignments' ids, names, and due dates
     assignment_list = {}
     today = date.today()
@@ -55,6 +58,9 @@ def get_canvas_assignments():
                         print(f"- {assignment_list[assignment.get("id")]}")   
         else:
             print(f"Failed to get the assignments for ID:{course_id} - Status:{r.status_code}")
+    
+    print()
+    return assignment_list
 
 if __name__ == "__main__":
-    get_canvas_assignments()
+    get_canvas_assignments(get_canvas_courses(url))
