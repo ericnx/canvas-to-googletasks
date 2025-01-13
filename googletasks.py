@@ -1,5 +1,5 @@
-# from Google workspace's "Python quickstart"
-import os.path
+# from Google workspace"s "Python quickstart"
+import os
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -34,8 +34,26 @@ def authenticate():
 
     return build("tasks", "v1", credentials=creds)
         
-def add_tasks():
-    return
+def add_tasks(courses, assignments):
+    service = authenticate()
+    
+    for course in courses:
+        course_name = courses[course]
+        for assignment in assignments:
+            task_body = {
+                "title": f"{assignments[assignment]} ({course_name})",
+                "due": assignment.get("due_at")
+                }
+            # service.tasks().insert(tasklist="@default", body=task_body).execute()
+            tasks = service.tasks().list(tasklist="@default").execute().get("items", [])
+            for task in tasks:
+                if task:
+                    service.tasks().delete(tasklist="@default", task=task["id"]).execute()
+                    print(f"Deleted task: {task["title"]}")
 
 if __name__ == "__main__":
-    authenticate()
+    sample_assignments = open("sample_assignments.txt").read()
+    sample_courses = open("sample_courses.txt").read()
+    print(sample_assignments)
+    print(sample_courses)
+    add_tasks(sample_courses, sample_assignments)
