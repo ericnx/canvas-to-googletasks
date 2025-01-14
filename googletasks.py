@@ -34,26 +34,34 @@ def authenticate():
 
     return build("tasks", "v1", credentials=creds)
         
-def add_tasks(courses, assignments):
+def add_tasks(courses_and_assignments):
     service = authenticate()
     
-    for course in courses:
-        course_name = courses[course]
-        for assignment in assignments:
-            task_body = {
-                "title": f"{assignments[assignment]} ({course_name})",
-                "due": assignment.get("due_at")
-                }
-            # service.tasks().insert(tasklist="@default", body=task_body).execute()
-            tasks = service.tasks().list(tasklist="@default").execute().get("items", [])
-            for task in tasks:
-                if task:
-                    service.tasks().delete(tasklist="@default", task=task["id"]).execute()
-                    print(f"Deleted task: {task["title"]}")
+    for course_id, course_data in courses_and_assignments.items():
+        course_name = course_data.get("course_name")
+        assignments = course_data.get("assignments")
 
-if __name__ == "__main__":
-    sample_assignments = open("sample_assignments.txt").read()
-    sample_courses = open("sample_courses.txt").read()
-    print(sample_assignments)
-    print(sample_courses)
-    add_tasks(sample_courses, sample_assignments)
+        if assignments:
+            for assignment in assignments:
+                if assignment and len(assignment) == 3: # checks if the assignment sub array has 3 elements
+                    task_body = {
+                        "id": f"{course_id}: {assignment[0]}",
+                        "title": f"{assignment[1]} ({course_name})",                        
+                        "due": assignment[2]
+                    }
+                    service.tasks().insert(tasklist="@default", body=task_body).execute()
+                    print(f"Added task: {assignment[1]} for {course_name}")
+                else:
+                    break
+        else:
+            print(f"Unable to fetch the assignments from {course_data}")
+
+            # tasks = service.tasks().list(tasklist="@default").execute().get("items", [])
+            # for task in tasks:
+            #     if task:
+            #         service.tasks().delete(tasklist="@default", task=task["id"]).execute()
+            #         print(f"Deleted task: {task["title"]}")
+
+# if __name__ == "__main__":
+#     test = open("courses_and_assignments.txt")
+#     add_tasks(test)

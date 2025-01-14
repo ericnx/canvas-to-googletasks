@@ -54,7 +54,7 @@ def get_canvas_assignments(course_list):
             latest_assignment = assignments[-1].get("due_at")
             # ignores old assignments
             if latest_assignment is None or date.fromisoformat(latest_assignment[:10]) < today:
-                course_list[course_id]["assignments"] = None
+                course_list[course_id]["assignments"] = "No assignments"
                 print(f"- {course_list[course_id]["assignments"]}")
                 continue
 
@@ -74,5 +74,5 @@ def get_canvas_assignments(course_list):
     
     return course_list
 
-if __name__ == "__main__":
-    get_canvas_assignments(get_canvas_courses(url))
+# if __name__ == "__main__":
+#     get_canvas_assignments(get_canvas_courses(url))
