@@ -1,5 +1,6 @@
 # from Google workspace"s "Python quickstart"
 import os
+from datetime import datetime
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -44,11 +45,16 @@ def add_tasks(courses_and_assignments):
         if assignments:
             for assignment in assignments:
                 if assignment and len(assignment) == 3: # checks if the assignment sub array has 3 elements (id, name, due date)
+                    due_time = assignment[2][11:16]
+                    # convert from 24hr time to 12hr time
+                    due_time = datetime.strptime(due_time, "%H:%M").strftime("%I:%M %p")
+
                     task_body = {
                         "id": f"{course_id}: {assignment[0]}",
-                        "title": f"{assignment[1]} due at {assignment[2][11:16]} ({course_name})",                        
+                        "title": f"{assignment[1]} due at {due_time} ({course_name})",                        
                         "due": assignment[2]
                     }
+                    
                     service.tasks().insert(tasklist="@default", body=task_body).execute()
                     print(f"Added task: {assignment[1]} for {course_name}")
                 else:
@@ -61,6 +67,7 @@ def add_tasks(courses_and_assignments):
 def delete():
     service = authenticate()
     tasks = service.tasks().list(tasklist="@default").execute().get("items", [])
+
     for task in tasks:
         if task:
             service.tasks().delete(tasklist="@default", task=task["id"]).execute()
