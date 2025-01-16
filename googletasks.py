@@ -43,10 +43,10 @@ def add_tasks(courses_and_assignments):
 
         if assignments:
             for assignment in assignments:
-                if assignment and len(assignment) == 3: # checks if the assignment sub array has 3 elements
+                if assignment and len(assignment) == 3: # checks if the assignment sub array has 3 elements (id, name, due date)
                     task_body = {
                         "id": f"{course_id}: {assignment[0]}",
-                        "title": f"{assignment[1]} ({course_name})",                        
+                        "title": f"{assignment[1]} due at {assignment[2][11:16]} ({course_name})",                        
                         "due": assignment[2]
                     }
                     service.tasks().insert(tasklist="@default", body=task_body).execute()
@@ -56,12 +56,16 @@ def add_tasks(courses_and_assignments):
         else:
             print(f"Unable to fetch the assignments from {course_data}")
 
-            # tasks = service.tasks().list(tasklist="@default").execute().get("items", [])
-            # for task in tasks:
-            #     if task:
-            #         service.tasks().delete(tasklist="@default", task=task["id"]).execute()
-            #         print(f"Deleted task: {task["title"]}")
+# for testing purposes
+# deletes all uncompleted tasks
+def delete():
+    service = authenticate()
+    tasks = service.tasks().list(tasklist="@default").execute().get("items", [])
+    for task in tasks:
+        if task:
+            service.tasks().delete(tasklist="@default", task=task["id"]).execute()
+            print(task["id"])
+            print(f"Deleted task: {task["title"]}")
 
-# if __name__ == "__main__":
-#     test = open("courses_and_assignments.txt")
-#     add_tasks(test)
+if __name__ == "__main__":
+    delete()
