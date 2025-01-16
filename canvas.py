@@ -1,7 +1,8 @@
 import requests
 import os
 from dotenv import load_dotenv
-from datetime import date
+from datetime import date, datetime
+from dateutil import tz
 
 load_dotenv()
 CANVAS_TOKEN = os.getenv("CANVAS_TOKEN")
@@ -42,6 +43,7 @@ def get_canvas_courses(url):
 def get_canvas_assignments(course_list):
     # gets the assignments' ids, names, and due dates and adds it along with the course's id and name
     today = date.today()
+    local_time_zone = tz.tzlocal()
 
     for course_id in course_list: # O(C * A). C = # of courses, A = # of assignments
         url = f"{CANVAS_URL}/{course_id}/assignments" # creates a new url to get the course's assignments
@@ -67,12 +69,15 @@ def get_canvas_assignments(course_list):
                         #       [assignment id, assignment name, assignment due date]
                         #   ]
                         # }
-                        course_list[course_id]["assignments"].append([assignment.get("id"), assignment.get("name"), assignment.get("due_at", "No due date")])
-                        print(f"- {assignment.get("name")} due at {assignment.get("due_at", "No due date")}") 
+                        due_date = datetime.fromisoformat(assignment.get("due_at"))
+                        due_date = due_date.astimezone(local_time_zone) # gets the operating system's local time zone
+                        due_date = due_date.strftime("%Y-%m-%dT%H:%M:%SZ") # formats the date to be JSON serializable
+                        course_list[course_id]["assignments"].append([assignment.get("id"), assignment.get("name"), due_date])
+                        print(f"- {assignment.get("name")} due at {due_date}") 
         else:
             print(f"Failed to get the assignments for ID:{course_id} - Status:{r.status_code}")
     
     return course_list
 
-# if __name__ == "__main__":
-#     get_canvas_assignments(get_canvas_courses(url))
+if __name__ == "__main__":
+    get_canvas_assignments(get_canvas_courses(url))
