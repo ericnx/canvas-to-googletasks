@@ -45,22 +45,37 @@ def add_tasks(courses_and_assignments):
         if assignments:
             for assignment in assignments:
                 if assignment and len(assignment) == 3: # checks if the assignment sub array has 3 elements (id, name, due date)
-                    due_time = assignment[2][11:16]
-                    # convert from 24hr time to 12hr time
-                    due_time = datetime.strptime(due_time, "%H:%M").strftime("%I:%M %p")
+                    if check_duplicate(course_name, assignment) == False: # no duplicates or empty task list
+                        due_time = assignment[2][11:16]
+                        # convert from 24hr time to 12hr time
+                        due_time = datetime.strptime(due_time, "%H:%M").strftime("%I:%M %p")
 
-                    task_body = {
-                        "id": f"{course_id}: {assignment[0]}",
-                        "title": f"{assignment[1]} due at {due_time} ({course_name})",                        
-                        "due": assignment[2]
-                    }
-                    
-                    service.tasks().insert(tasklist="@default", body=task_body).execute()
-                    print(f"Added task: {assignment[1]} for {course_name}")
+                        task_body = {
+                            "id": f"{course_id}: {assignment[0]}",
+                            "title": f"{assignment[1]} due at {due_time} ({course_name})",                        
+                            "due": assignment[2]
+                        }
+                        
+                        service.tasks().insert(tasklist="@default", body=task_body).execute()
+                        print(f"Added task: {assignment[1]} ({course_name})")
                 else:
                     break
         else:
             print(f"Unable to fetch the assignments from {course_data}")
+
+def check_duplicate(course_name, assignment):
+    service = authenticate()
+    tasks = service.tasks().list(tasklist="@default").execute().get("items", [])
+
+    if not tasks: # empty list
+        return False
+    
+    for task in tasks:
+        if assignment[1] in task.get("title") and course_name in task.get("title"):
+            print(f"Didn't add duplicate task: {assignment[1]} ({course_name})")
+            return True # found duplicate task
+        
+    return False # no duplicates
 
 # for testing purposes
 # deletes all uncompleted tasks
@@ -71,7 +86,6 @@ def delete():
     for task in tasks:
         if task:
             service.tasks().delete(tasklist="@default", task=task["id"]).execute()
-            print(task["id"])
             print(f"Deleted task: {task["title"]}")
 
 if __name__ == "__main__":
