@@ -64,7 +64,7 @@ def get_canvas_assignments(course_list):
                 for assignment in assignments:
                     if assignment.get("id") and assignment.get("name"):
                         if assignment.get("due_at"):
-                            due_date = due_date = datetime.fromisoformat(assignment.get("due_at"))
+                            due_date = datetime.fromisoformat(assignment.get("due_at"))
                         else: # if there is an assignment but no due date, then set due date for today
                             due_date = datetime.now()
 

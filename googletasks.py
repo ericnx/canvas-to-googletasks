@@ -55,7 +55,7 @@ def add_tasks(courses_and_assignments):
                             "title": f"{assignment[1]} due at {due_time} ({course_name})",                        
                             "due": assignment[2]
                         }
-                        
+
                         service.tasks().insert(tasklist="@default", body=task_body).execute()
                         print(f"Added task: {assignment[1]} ({course_name})")
                 else:
