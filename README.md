@@ -1,4 +1,4 @@
-# Canvas Assignments to Google Tasks
+# Canvas to Google Tasks
 
 ## Automatically exports Canvas assignments over to Google Calendar as new tasks.
 
