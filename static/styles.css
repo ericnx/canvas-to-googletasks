@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css?family=Rubik:500");
+
 body{
     display: flex;
     justify-content: center;
@@ -5,17 +7,16 @@ body{
 }
 
 .logo{
-    height: 200px;
+    height: 20%;
     width: height;
+    cursor: pointer;
 }
-
 #canvaslogo{
     position: absolute;
     top: 40%;
     left: 39%;
     transform: translate(-50%, -50%);
 }
-
 #googletaskslogo{
     position: absolute;
     top: 40%;
@@ -30,7 +31,6 @@ body{
     left: 50%;
     transform: translate(-50%, -50%);
     transform: rotate(270deg);
-    cursor: pointer;
 }
 .arrow span{
     display: block;
@@ -62,4 +62,27 @@ body{
         opacity: 0;
         transform: rotate(45deg) translate(-20px, -20px);
     }
+}
+
+#exportbutton{
+    position: absolute;
+    top: 55%;
+    left: 49.3%;
+    transform: translate(-50%, -50%);
+    border: none;
+    cursor: pointer;
+    height: 9%;
+    width: 12%;
+    border-radius: 5%;
+    font-size: 120%;
+    text-transform: uppercase;
+    font-family: "Rubik", sans-serif;
+    background-color: rgb(232, 232, 232);
+    color: #000000;
+}
+#exportbutton:hover{
+    background-color: rgb(213, 212, 212);
+}
+#exportbutton:active{
+    top: 55.5%;
 }
