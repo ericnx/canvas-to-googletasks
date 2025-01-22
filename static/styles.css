@@ -11,6 +11,9 @@ body{
     width: height;
     cursor: pointer;
 }
+.logo:hover{
+    filter: brightness(85%);
+}
 #canvaslogo{
     position: absolute;
     top: 40%;
