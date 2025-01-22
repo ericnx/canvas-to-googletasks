@@ -1,6 +1,8 @@
 # Canvas to Google Tasks
 
-## Automatically exports Canvas assignments over to Google Calendar as new tasks.
+## Automatically exports Canvas assignments over to Google Tasks.
+
+## Currently for personal use only
 
 This repository provides a solution for users who want to automatically export their Canvas assignments over to Google Calendar as **tasks instead of events**.
 
