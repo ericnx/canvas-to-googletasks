@@ -65,11 +65,10 @@ def get_canvas_assignments(course_list):
                     if assignment.get("id") and assignment.get("name"):
                         if assignment.get("due_at"):
                             due_date = datetime.fromisoformat(assignment.get("due_at"))
-                        else: # if there is an assignment but no due date, then set due date for today
-                            due_date = datetime.now()
-
-                        due_date = due_date.astimezone(local_time_zone) # gets the operating system's local time zone
-                        due_date_str = due_date.strftime("%Y-%m-%dT%H:%M:%SZ") # formats the date to be JSON serializable
+                            due_date = due_date.astimezone(local_time_zone) # gets the operating system's local time zone
+                            due_date_str = due_date.strftime("%Y-%m-%dT%H:%M:%SZ") # formats the date to be JSON serializable
+                        else: # if there is an assignment but no due date, then skip
+                            continue
 
                         # course id: {
                         #   course name: str
