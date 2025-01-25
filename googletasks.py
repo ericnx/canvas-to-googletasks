@@ -65,7 +65,7 @@ def add_tasks(courses_and_assignments):
 
 def check_duplicate(course_name, assignment):
     service = authenticate()
-    tasks = service.tasks().list(tasklist="@default").execute().get("items", [])
+    tasks = service.tasks().list(tasklist="@default", maxResults=100, showHidden=True).execute().get("items", [])
 
     if not tasks: # empty list
         return False
@@ -81,7 +81,7 @@ def check_duplicate(course_name, assignment):
 # deletes all uncompleted tasks
 def delete():
     service = authenticate()
-    tasks = service.tasks().list(tasklist="@default").execute().get("items", [])
+    tasks = service.tasks().list(tasklist="@default", maxResults=100).execute().get("items", [])
 
     for task in tasks:
         if task:
