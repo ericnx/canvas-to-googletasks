@@ -21,11 +21,6 @@ def get_canvas_courses(url):
 
             for course in courses:
                 if course.get("id") and course.get("name"):
-                    # nested dict
-                    # course id: {
-                    #   course name: str
-                    #   course assignments: []
-                    # }
                     course_list[course.get("id")] = {
                         "course_name": course.get("name"),
                         "assignments": [],
@@ -53,38 +48,14 @@ def get_canvas_assignments(course_list):
             assignments = r.json()
             print(f"Assignments for course: {course_list[course_id]["course_name"]}")
 
-            if len(assignments) != 0: # there is an "Assignments" tab
-                latest_assignment = assignments[-1].get("due_at")
-                # ignores old assignments
-                if latest_assignment is None or date.fromisoformat(latest_assignment[:10]) < today:
-                    course_list[course_id]["assignments"] = "No assignments"
-                    print(f"- {course_list[course_id]["assignments"]}")
-                    continue
-
-                for assignment in assignments:
-                    if assignment.get("id") and assignment.get("name"):
-                        if assignment.get("due_at"):
-                            due_date = datetime.fromisoformat(assignment.get("due_at"))
-                            due_date = due_date.astimezone(local_time_zone) # gets the operating system's local time zone
-                            due_date_str = due_date.strftime("%Y-%m-%dT%H:%M:%SZ") # formats the date to be JSON serializable
-                        else: # if there is an assignment but no due date, then skip
-                            continue
-
-                        # course id: {
-                        #   course name: str
-                        #   course assignments: [
-                        #       [assignment id, assignment name, assignment due date]
-                        #   ]
-                        # }
+            for assignment in assignments:
+                if assignment.get("id") and assignment.get("name") and assignment.get("due_at"):
+                        due_date = datetime.fromisoformat(assignment.get("due_at"))
+                        due_date = due_date.astimezone(local_time_zone) # gets the operating system's local time zone
+                        due_date_str = due_date.strftime("%Y-%m-%dT%H:%M:%SZ") # formats the date to be JSON serializable
                         if due_date.date() >= today:
                             course_list[course_id]["assignments"].append([assignment.get("id"), assignment.get("name"), due_date_str])
                             print(f"- {assignment.get("name")} due at {due_date}")
-            else: # no "Assignments" tab
-                course_list[course_id]["assignments"] = "No assignments"
-                print(f"- {course_list[course_id]["assignments"]}")
-        else:
-            print(f"Failed to get the assignments for ID:{course_id} - Status:{r.status_code}")
-    
     return course_list
 
 if __name__ == "__main__":
